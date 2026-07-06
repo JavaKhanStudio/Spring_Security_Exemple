@@ -1,0 +1,32 @@
+meta {
+  name: Create owned resource (admin)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{connectionPath}}/examples/owned-resource
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+body:json {
+  {
+    "owner": "admin1",
+    "content": "donnee confidentielle de admin1"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.owner: eq admin1
+}
+
+script:post-response {
+  // On garde l'id genere pour la requete @PostAuthorize juste apres.
+  bru.setVar("ownedResourceId", res.body.id);
+}

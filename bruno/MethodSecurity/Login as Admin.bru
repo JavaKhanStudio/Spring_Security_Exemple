@@ -1,0 +1,27 @@
+meta {
+  name: Login as Admin
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{connectionPath}}/api/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin1",
+    "password": "password"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  // Token admin1 (ROLE_ADMIN) reutilise par toutes les requetes de ce dossier.
+  bru.setVar("userToken", res.body.token);
+}

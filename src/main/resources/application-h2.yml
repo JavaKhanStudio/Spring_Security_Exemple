@@ -1,0 +1,32 @@
+# =====================================================================
+#  Profil "h2" : chemin de demarrage FACILE, sans base de donnees externe.
+#  Lancer avec :  ./mvnw spring-boot:run -Dspring-boot.run.profiles=h2
+#  Tout est en memoire : aucune installation de MySQL / Docker requise.
+#  Ce fichier est volontairement autonome (datasource, JWT, CORS)
+#  pour fonctionner directement apres un "git clone".
+# =====================================================================
+
+spring:
+  datasource:
+    url: "jdbc:h2:mem:securitydemo;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  flyway:
+    enabled: true
+    # Migrations ecrites pour H2 (voir db/h2)
+    locations: "classpath:db/h2"
+
+# Secret JWT de developpement uniquement (HS512 => 64 octets minimum). A CHANGER en production.
+jwt:
+  secret: "local-dev-only-change-me-0123456789-abcdefghijklmnopqrstuvwxyz-0123456789"
+
+cors:
+  allowedOrigins: "http://localhost:3000,http://localhost:8080"
+
+server:
+  port: 8080

@@ -1,0 +1,19 @@
+meta {
+  name: PostAuthorize get other resource (denied)
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{connectionPath}}/examples/owned-resource/{{otherResourceId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+assert {
+  res.status: eq 403
+}

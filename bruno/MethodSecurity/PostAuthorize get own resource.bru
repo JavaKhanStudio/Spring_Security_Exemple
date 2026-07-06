@@ -1,0 +1,20 @@
+meta {
+  name: PostAuthorize get own resource
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{connectionPath}}/examples/owned-resource/{{ownedResourceId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.owner: eq admin1
+}

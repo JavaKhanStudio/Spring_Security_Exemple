@@ -1,0 +1,24 @@
+meta {
+  name: Connection as Admin
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{connectionPath}}/api/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin1",
+    "password": "password"
+  }
+}
+
+script:post-response {
+  // Capture the JWT returned by /api/login as a runtime variable (like the Postman test script).
+  // setVar keeps it runtime-only so the token is never written to disk / committed to git.
+  bru.setVar("userToken", res.body.token);
+}

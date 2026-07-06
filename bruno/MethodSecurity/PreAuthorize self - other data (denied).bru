@@ -1,0 +1,19 @@
+meta {
+  name: PreAuthorize self - other data (denied)
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{connectionPath}}/examples/preauthorize/self/student1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+assert {
+  res.status: eq 403
+}

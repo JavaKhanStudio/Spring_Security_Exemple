@@ -1,0 +1,19 @@
+meta {
+  name: Secured user (denied)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{connectionPath}}/examples/secured/user
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+assert {
+  res.status: eq 403
+}

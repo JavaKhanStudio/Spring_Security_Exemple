@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,6 +20,10 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+// Active la securite au niveau methode :
+//  - prePostEnabled = true par defaut  -> active @PreAuthorize / @PostAuthorize
+//  - securedEnabled  = true (explicite) -> active @Secured
+@EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
     // Injection du cors allowed origins. Cela rend mon application plus flexible,
@@ -75,7 +80,13 @@ public class SecurityConfiguration {
                         .requestMatchers("/user/**").hasRole("USER") // Accès étudiant
                         .requestMatchers("/tester/**").hasRole("TESTER") // Accès enseignant
                         // Accès public a certaines routes, notamment la page d'accueil, l'inscription et le login
-                        .requestMatchers("/", "/index", "/test", "/test/*", "/api/users/register", "/api/login").permitAll()
+                        // /examples/** : la securite URL laisse passer ; c'est l'annotation
+                        // (@PreAuthorize / @Secured) sur la methode du controller qui decide seule.
+                        .requestMatchers("/examples/**").permitAll()
+                        // /error doit etre public : sinon une erreur (404, 500...) est renvoyee en
+                        // dispatch interne vers /error, non authentifie, et masquee en 403.
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/", "/index", "/test", "/test/*", "/api/users/register", "/api/login", "/api/validation-example").permitAll()
                         .anyRequest().authenticated() // Toutes les autres requêtes nécessitent une authentification
                 )
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // Ajout du filtre JWT, permettant de vérifier le token et le rôle de l'utilisateur

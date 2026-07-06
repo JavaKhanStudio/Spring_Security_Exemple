@@ -1,0 +1,19 @@
+meta {
+  name: PreAuthorize admin
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{connectionPath}}/examples/preauthorize/admin
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+assert {
+  res.status: eq 200
+}
