@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS demo</title>
+    <style>
+        :root {
+            --bg: #0f1220; --card: #1a1f36; --ink: #e7ecff; --muted: #97a0c3;
+            --ok: #3ddc97; --bad: #ff6b6b; --accent: #6c8cff; --line: #2a3157;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg); color: var(--ink); line-height: 1.5;
+            display: flex; justify-content: center; padding: 32px 16px;
+        }
+        .wrap { width: 100%; max-width: 680px; }
+        h1 { font-size: 1.4rem; margin: 0 0 4px; }
+        .sub { color: var(--muted); margin: 0 0 24px; font-size: .95rem; }
+        .card {
+            background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+            padding: 18px 20px; margin-bottom: 18px;
+        }
+        .origin-badge {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+        .origin-badge .dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; }
+        .origin-badge code { font-size: 1.1rem; }
+        .verdict { font-size: .9rem; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+        .verdict.allowed { background: rgba(61,220,151,.15); color: var(--ok); }
+        .verdict.blocked { background: rgba(255,107,107,.15); color: var(--bad); }
+        label { display: block; font-size: .8rem; color: var(--muted); margin: 10px 0 4px; }
+        input {
+            width: 100%; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--line);
+            background: #0c0f1d; color: var(--ink); font-size: .95rem;
+        }
+        .row { display: flex; gap: 12px; }
+        .row > div { flex: 1; }
+        button {
+            background: var(--accent); color: #fff; border: 0; border-radius: 9px;
+            padding: 10px 14px; font-size: .95rem; font-weight: 600; cursor: pointer;
+            margin: 6px 6px 0 0;
+        }
+        button:hover { filter: brightness(1.08); }
+        button .tag { font-weight: 400; opacity: .8; font-size: .8rem; }
+        .hint { font-size: .82rem; color: var(--muted); margin: 4px 0 0; }
+        #log {
+            background: #0a0d19; border: 1px solid var(--line); border-radius: 10px;
+            padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: .82rem; white-space: pre-wrap; word-break: break-word;
+            max-height: 320px; overflow-y: auto; margin: 0;
+        }
+        .log-ok { color: var(--ok); }
+        .log-bad { color: var(--bad); }
+        .log-info { color: var(--muted); }
+        .log-req { color: var(--accent); }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>🌐 CORS demo</h1>
+    <p class="sub">A tiny frontend that calls the Spring API on another origin, so the browser enforces CORS.</p>
+
+    <div class="card">
+        <div class="origin-badge">
+            <span class="dot" id="dot"></span>
+            <div>
+                <div style="font-size:.8rem;color:var(--muted)">This page is served from</div>
+                <code id="origin">—</code>
+            </div>
+            <span class="verdict" id="verdict">—</span>
+        </div>
+        <p class="hint" id="originHint"></p>
+    </div>
+
+    <div class="card">
+        <div class="row">
+            <div>
+                <label>API base URL</label>
+                <input id="apiBase" value="http://localhost:8080">
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <label>Username</label>
+                <input id="username" value="admin1">
+            </div>
+            <div>
+                <label>Password</label>
+                <input id="password" value="password">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <button onclick="callSimple()">1. Simple GET <span class="tag">/test · no preflight</span></button>
+        <button onclick="doLogin()">2. Login <span class="tag">POST /api/login · preflighted</span></button>
+        <button onclick="callProtected()">3. Protected GET <span class="tag">/examples/whoami · Bearer · preflighted</span></button>
+        <button onclick="clearLog()" style="background:#333a5c">Clear</button>
+        <p class="hint">Buttons 2 &amp; 3 send a non-simple request (JSON body / Authorization header), so the browser fires an <b>OPTIONS preflight</b> first — watch the Network tab.</p>
+    </div>
+
+    <pre id="log"></pre>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
