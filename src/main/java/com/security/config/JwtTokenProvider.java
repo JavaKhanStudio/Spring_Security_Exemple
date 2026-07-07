@@ -2,6 +2,7 @@ package com.security.config;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +44,9 @@ public class JwtTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(jwtSecretKey).build().parseClaimsJws(authToken);
             return true;
-        } catch (SecurityException ex) {
+        } catch (SignatureException ex) {
+            // jjwt 0.11+ leve io.jsonwebtoken.security.SignatureException (et non
+            // java.lang.SecurityException) quand la signature ne correspond pas.
             logger.error("Invalid JWT signature");
         } catch (MalformedJwtException ex) {
             logger.error("Invalid JWT token");

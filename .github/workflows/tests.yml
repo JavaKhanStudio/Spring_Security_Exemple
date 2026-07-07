@@ -1,0 +1,53 @@
+name: Tests
+
+# Lance la suite de tests (+ couverture JaCoCo) sur chaque push et pull request.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Evite d'accumuler des runs redondants sur une meme branche/PR.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # JDK 21 (Temurin) : Spring Boot 3.2 supporte 17-21 ; on cible 21,
+      # c'est la version testee en local sur ce projet.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build and run tests (with JaCoCo)
+        # 'verify' declenche : compile -> test (rapport JaCoCo) -> check (seuil de couverture)
+        run: ./mvnw -B --no-transfer-progress verify
+
+      # Publie les rapports de tests JUnit meme si la build echoue.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+
+      # Publie le rapport de couverture JaCoCo (HTML + XML).
+      - name: Upload JaCoCo coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+          if-no-files-found: ignore
